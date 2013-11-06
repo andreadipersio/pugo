@@ -8,10 +8,14 @@ import (
 
     "strings"
 
+    "os/exec"
+
     "net/http"
 
     "encoding/json"
     "encoding/base64"
+
+    "strconv"
 )
 
 const (
@@ -93,6 +97,7 @@ func getFilename(urlPath string) string {
     return fmt.Sprintf("%v.md", filename)
 }
 
+
 func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
     var content string
 
@@ -145,6 +150,21 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
         }
 
         toHTML := func() error {
+            cmd := exec.Command("markdown")
+
+            if pipeWriter, err := cmd.StdinPipe(); err != nil {
+                return err
+            } else {
+                pipeWriter.Write([]byte(content))
+                pipeWriter.Close()
+            }
+
+            if output, err := cmd.CombinedOutput(); err != nil {
+                return err
+            } else {
+                content = string(output)
+            }
+
             localCache.putChan <-cacheRequest{filename, content}
 
             return nil
@@ -170,6 +190,9 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
     if content = getFromCache(); content == "" || refreshFlag != "" {
         content = getFromGithub()
     }
+
+    w.Header().Set("Content-Type", "text/html")
+    w.Header().Set("Content-Length", strconv.Itoa(len(content)))
 
     fmt.Fprint(w, content)
 }
