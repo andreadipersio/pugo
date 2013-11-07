@@ -6,6 +6,7 @@ import (
 
     "flag"
 
+    "bytes"
     "strings"
 
     "os/exec"
@@ -14,6 +15,8 @@ import (
 
     "encoding/json"
     "encoding/base64"
+
+    "html/template"
 
     "strconv"
 )
@@ -27,6 +30,9 @@ var (
 
     repo     string
     owner    string
+
+    staticsPath  string
+    templatesPath string
 )
 
 type httpHandlerFn func(http.ResponseWriter, *http.Request, *cache)
@@ -44,6 +50,10 @@ type cache struct {
 
     getChan  chan string
     putChan  chan cacheRequest
+}
+
+func getTemplatePath(filename string) string {
+    return fmt.Sprintf("%v/%v", templatesPath, filename)
 }
 
 func NewCache() *cache {
@@ -82,6 +92,8 @@ func init() {
 
     flag.StringVar(&repo, "repo", "", "Github public repository name")
     flag.StringVar(&owner, "owner", "", "Github public repository owner")
+    flag.StringVar(&staticsPath, "statics", "./statics", "path to static files")
+    flag.StringVar(&templatesPath, "templates", "./templates", "path to html templates")
 
     flag.Parse()
 }
@@ -96,7 +108,6 @@ func getFilename(urlPath string) string {
 
     return fmt.Sprintf("%v.md", filename)
 }
-
 
 func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
     var content string
@@ -165,6 +176,20 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
                 content = string(output)
             }
 
+            if tmpl, err := template.ParseFiles(getTemplatePath("post.html")); err != nil {
+                return err
+            } else {
+                context := &struct { Content template.HTML } { template.HTML(content), }
+
+                wr := bytes.NewBufferString("")
+
+                if parseErr := tmpl.Execute(wr, context); parseErr != nil {
+                    return parseErr
+                }
+
+                content = wr.String()
+            }
+
             localCache.putChan <-cacheRequest{filename, content}
 
             return nil
@@ -200,12 +225,15 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
 func main() {
     httpAddr := fmt.Sprintf(":%v", httpPort)
 
+    log.Printf("Serving static files from %v", staticsPath)
+
     log.Printf("Starting server on %v", httpAddr)
 
     localCache := NewCache()
     go localCache.run()
 
     http.HandleFunc("/favicon.ico", http.NotFound)
+    http.Handle("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir(staticsPath))))
 
     http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
         rootHandler(w, r, localCache)

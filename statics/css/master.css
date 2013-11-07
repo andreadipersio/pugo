@@ -1,0 +1,96 @@
+@import "reset.css";
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700);
+
+body {
+    font-family: "Open Sans", Arial;
+    font-size: 12pt;
+    width: 750px;
+
+    padding: 40px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Play", Arial;
+    font-weight: bold;
+
+    padding: 20px 10px 10px 10px;
+}
+
+h1 {
+    font-size: 1.5em;
+
+    padding-top: 0px;
+}
+
+h2 {
+    font-size: 1.2em;
+}
+
+h3 {
+    font-size: 1.1em;
+}
+
+ul, li {
+    list-style: none;
+}
+
+ul {
+    padding: 10px;
+}
+
+li {
+    padding: 5px 0;
+    margin-left: 30px;
+    list-style: square;
+}
+
+p {
+    line-height: 1.7em;
+
+    padding: 10px 10px;
+}
+
+strong {
+    font-weight: bold;
+}
+
+em {
+    font-style: italic;
+}
+
+blockquote {
+    padding: 20px 20px;
+}
+
+a {
+    color: #666;
+}
+
+pre {
+    margin: 10px 10px;
+    padding: 20px;
+    background-color: #ffffd8;
+    border: 0.1em solid #dfdfdf;
+}
+
+code {
+    font-size: 0.9em;
+    font-family: "Menlo", monospace;
+    line-height: 1.5em;
+}
+
+header {
+    padding: 10px;
+    background: #666;
+
+    color: #fff;
+
+    margin: -40px 0 20px 0;
+
+    word-spacing: 1em;
+    letter-spacing: 0.1em;
+    font-size: 0.8em;
+    font-family: "Play", Arial;
+
+    border-top: 0.3em solid #444;
+}
