@@ -1,8 +1,7 @@
 @import "reset.css";
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700);
 
 body {
-    font-family: "Open Sans", Arial;
+    font-family: "Trebuchet MS", Helvetica, arial;
     font-size: 12pt;
     width: 750px;
 
@@ -10,24 +9,26 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Play", Arial;
+    font-family: "Optima", Helvetica, arial;
     font-weight: bold;
 
-    padding: 20px 10px 10px 10px;
+    padding: 00px 10px 00px 10px;
+    margin: 20px 0;
+
+    border-left: 5px solid #cc3333;
 }
 
 h1 {
-    font-size: 1.5em;
-
+    font-size: 1.6em;
     padding-top: 0px;
 }
 
 h2 {
-    font-size: 1.2em;
+    font-size: 1.4em;
 }
 
 h3 {
-    font-size: 1.1em;
+    font-size: 1.2em;
 }
 
 ul, li {
@@ -63,20 +64,20 @@ blockquote {
 }
 
 a {
-    color: #666;
+    color: #cc3333;
 }
 
 pre {
     margin: 10px 10px;
-    padding: 20px;
+    padding: 1em;
     background-color: #ffffd8;
     border: 0.1em solid #dfdfdf;
 }
 
 code {
-    font-size: 0.9em;
+    font-size: 0.8em;
     font-family: "Menlo", monospace;
-    line-height: 1.5em;
+    line-height: 1.6em;
 }
 
 header {

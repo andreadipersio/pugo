@@ -30,9 +30,11 @@ var (
 
     repo     string
     owner    string
+    token    string
 
     staticsPath  string
     templatesPath string
+
 )
 
 type httpHandlerFn func(http.ResponseWriter, *http.Request, *cache)
@@ -94,6 +96,7 @@ func init() {
     flag.StringVar(&owner, "owner", "", "Github public repository owner")
     flag.StringVar(&staticsPath, "statics", "./statics", "path to static files")
     flag.StringVar(&templatesPath, "templates", "./templates", "path to html templates")
+    flag.StringVar(&token, "token", "", "Github Personal Token")
 
     flag.Parse()
 }
@@ -131,7 +134,20 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
 
             log.Println(remoteURL)
 
-            resp, err := http.Get(remoteURL)
+            client := http.Client{}
+            req, err := http.NewRequest("GET", remoteURL, nil)
+
+            r.Header.Set("User-Agent", "andreadipersio/pugo")
+
+            if token != "" {
+                r.SetBasicAuth(owner, token)
+            }
+
+            if err != nil {
+                panic(err)
+            }
+
+            resp, err := client.Do(req)
 
             if err != nil {
                 panic(err)
@@ -176,7 +192,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
                 content = string(output)
             }
 
-            if tmpl, err := template.ParseFiles(getTemplatePath("post.html")); err != nil {
+            if tmpl, err := template.ParseFiles(getTemplatePath("base.html"), getTemplatePath("article.html")); err != nil {
                 return err
             } else {
                 context := &struct { Content template.HTML } { template.HTML(content), }
