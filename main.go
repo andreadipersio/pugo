@@ -19,6 +19,8 @@ import (
     "html/template"
 
     "strconv"
+
+    "github.com/andreadipersio/pugo/libs/cache"
 )
 
 const (
@@ -37,56 +39,12 @@ var (
 
 )
 
-type httpHandlerFn func(http.ResponseWriter, *http.Request, *cache)
-
 type GithubResponse struct {
     Content string `json:"content"`
 }
 
-type cacheRequest struct {
-    filename, content string
-}
-
-type cache struct {
-    data     map[string] string
-
-    getChan  chan string
-    putChan  chan cacheRequest
-}
-
 func getTemplatePath(filename string) string {
     return fmt.Sprintf("%v/%v", templatesPath, filename)
-}
-
-func NewCache() *cache {
-    return &cache {
-        data    : make(map[string] string, 10),
-        getChan : make(chan string),
-        putChan : make(chan cacheRequest),
-    }
-}
-
-func (c *cache) run() {
-    log.Println("Starting cache")
-
-    for {
-        select {
-
-        case filename := <-c.getChan:
-            log.Printf("cache::get %v", filename)
-            content := c.data[filename]
-
-            if content == "" {
-                log.Print("cache::miss")
-            }
-
-            c.getChan <-content
-
-        case put := <-c.putChan:
-            log.Printf("cache::put %v", put.filename)
-            c.data[put.filename] = put.content
-        }
-    }
 }
 
 func init() {
@@ -112,7 +70,7 @@ func getFilename(urlPath string) string {
     return fmt.Sprintf("%v.md", filename)
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
+func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache.Cache) {
     var content string
 
     filename := getFilename(r.URL.Path)
@@ -122,8 +80,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
     refreshFlag := r.FormValue("refresh")
 
     getFromCache := func() string {
-        localCache.getChan <- filename
-        return <-localCache.getChan
+        localCache.GetChan <- filename
+        return <-localCache.GetChan
     }
 
     getFromGithub := func() (content string) {
@@ -206,7 +164,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache) {
                 content = wr.String()
             }
 
-            localCache.putChan <-cacheRequest{filename, content}
+            localCache.PutChan <-cache.CacheRequest{filename, content}
 
             return nil
         }
@@ -245,8 +203,8 @@ func main() {
 
     log.Printf("Starting server on %v", httpAddr)
 
-    localCache := NewCache()
-    go localCache.run()
+    localCache := cache.NewCache()
+    go localCache.Run()
 
     http.HandleFunc("/favicon.ico", http.NotFound)
     http.Handle("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir(staticsPath))))
