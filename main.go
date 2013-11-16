@@ -144,7 +144,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request, localCache *cache.Cache
                 pipeWriter.Close()
             }
 
-            if output, err := cmd.CombinedOutput(); err != nil {
+            if output, err := cmd.Output(); err != nil {
                 return err
             } else {
                 content = string(output)
