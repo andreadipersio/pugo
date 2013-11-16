@@ -64,7 +64,7 @@ func getFilename(urlPath string) string {
     filename := parts[len(parts) - 1]
 
     if filename == "" {
-        return "index.md"
+        return "README.md"
     }
 
     return fmt.Sprintf("%v.md", filename)
