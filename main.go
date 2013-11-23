@@ -20,7 +20,7 @@ import (
 
     "strconv"
 
-    "github.com/andreadipersio/pugo/libs/cache"
+    "github.com/andreadipersio/pugo/lib/cache"
 )
 
 const (
