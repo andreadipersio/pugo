@@ -1,6 +1,8 @@
 Pugo
 ======
 
+![pugo](https://github.com/andreadipersio/pugo/raw/master/logo.jpg "Pugo Logo")
+
 A github/statical ultra-minimal website generator.
 
 Pugo is intended to be a starting point for busy developers not having
